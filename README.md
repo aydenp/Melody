@@ -8,7 +8,7 @@ I had originally planned to release and finish this tweak myself, but was unable
 
 ## Contributing
 
-**If you plan on contributing, you must read the license carefully.
+**If you plan on contributing, you must read the license carefully.**
 
 I have put a lot of work into this tweak, so please respect my wishes and code while using the source code. I have finished most of the tweak and left over is mainly small bugs and features. Check out the [issues page](https://github.com/AppleBetas/Melody/issues) to see what needs to be done.
 

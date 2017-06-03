@@ -1314,18 +1314,16 @@ static void handleUnplayableEntityValueContext(MusicEntityValueContext *entityVa
 -(void)layoutSubviews {
     %orig;
     [self _layoutPlayButtonUsingBlock:^(MusicPlayButton *playButton) {
-        UIEdgeInsets edgeInsets = UIEdgeInsetsMake(8, 8, 8, 8);
+        UIEdgeInsets edgeInsets = UIEdgeInsetsMake(8 + playButton.buttonSize.height, 8 + playButton.buttonSize.width, 8 + playButton.buttonSize.height, 8 + playButton.buttonSize.width);
         MusicEntityViewContentArtworkDescriptor *artworkDescriptor = [[self _contentDescriptor] artworkDescriptor];
         if(artworkDescriptor != nil) {
-            UIEdgeInsets additionalInsets = artworkDescriptor.artworkEdgeInsets;
-            edgeInsets.top += additionalInsets.top;
-            edgeInsets.bottom += additionalInsets.bottom;
-            edgeInsets.left += additionalInsets.left;
-            edgeInsets.right += additionalInsets.right;
+            edgeInsets.top += artworkDescriptor.artworkEdgeInsets.top;
+            edgeInsets.bottom += artworkDescriptor.artworkEdgeInsets.bottom;
+            edgeInsets.left += artworkDescriptor.artworkEdgeInsets.left;
+            edgeInsets.right += artworkDescriptor.artworkEdgeInsets.right;
         }
-        UIView *artworkView = [self _artworkView];
-        NSLog(@"fucc %f", edgeInsets.right + playButton.frame.size.width);
-        [playButton setFrame:CGRectMake(CGRectGetMaxX(artworkView.frame) - (edgeInsets.right + playButton.buttonSize.width), CGRectGetMaxY(artworkView.frame) - (edgeInsets.bottom + playButton.buttonSize.height), playButton.frame.size.width, playButton.frame.size.height)];
+        CGRect playButtonFrame = UIEdgeInsetsInsetRect([self _artworkView].frame, edgeInsets);
+        [playButton setFrame:CGRectMake(CGRectGetMaxX(playButtonFrame), CGRectGetMaxY(playButtonFramegi), playButton.frame.size.width, playButton.frame.size.height)];
     }];
 }
 

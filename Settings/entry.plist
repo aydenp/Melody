@@ -1,0 +1,10 @@
+{
+	entry = {
+		bundle = "MelodySettings";
+		cell = PSLinkCell;
+		detail = "MelodySettingsController";
+		icon = "icon.png";
+		isController = 1;
+		label = "Melody";
+	};
+}

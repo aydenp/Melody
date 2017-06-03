@@ -1,0 +1,10 @@
+Package: co.dynastic.ios.tweak.melody
+Name: Melody Beta
+Depends: mobilesubstrate, firmware (>= 10.0)
+Conflicts: com.hidan.musicmorecolumns, com.thecomputerwhisperer.MyMusicPlus
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: Bring back the look of the iOS 9 Music app.
+Maintainer: AppleBetas
+Author: AppleBetas
+Section: Tweaks

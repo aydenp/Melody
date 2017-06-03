@@ -6,10 +6,11 @@
     self = [super init];
     if (self) {
         self->_accessQueue = dispatch_queue_create("com.apple.FuseUI.MusicEntityPlayabilityController.accessQueue", DISPATCH_QUEUE_CONCURRENT);
-        self->_cellularNetworkAllowed = NO;
+        [self _setupCellularNetworkingAllowed];
         self->_showCloudMediaEnabled = [[%c(MusicDefaults) sharedDefaults] isShowCloudMediaEnabled];
         MPCloudServiceStatusController *cloudService = [%c(MPCloudServiceStatusController) sharedController];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_cellularNetworkAllowedDidChangeNotification:) name:@"MPNetworkObserverIsMusicCellularNetworkingAllowedDidChangeNotification" object:[%c(MPNetworkObserver) sharedNetworkObserver]];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_cellularNetworkAllowedDidChangeNotification:) name:@"MPNetworkObserverIsMusicCellularStreamingAllowedDidChangeNotification" object:[%c(MPNetworkObserver) sharedNetworkObserver]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_networkTypeDidChangeNotification:) name:@"ISNetworkTypeChangedNotification" object:[%c(ISNetworkObserver) sharedInstance]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_fairPlaySubscriptionStatusDidChangeNotification:) name:@"MPCloudServiceStatusControllerFairPlaySubscriptionStatusDidChangeNotification" object:cloudService];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_allowsExplicitContentDidChangeNotification:) name:@"MPRestrictionsMonitorAllowsExplicitContentDidChangeNotification" object:[%c(MPRestrictionsMonitor) sharedRestrictionsMonitor]];
@@ -50,10 +51,14 @@
             // Check if item is music store restricted
             if([result[@"musicItemStoreRestricted"] boolValue]) return 3;
             
+            
+            BOOL isCellularAndCantStream = [MelodyEntityPlayabilityController isCellularNetworkType:networkType] && !isCellularNetworkAllowed;
+            BOOL cannotStream = networkType == 0 || isCellularAndCantStream;
+            
             // Check if media item has no non-purgeable asset
             if([result[@"hasNonPurgeableAsset"] boolValue]) {
                 // Check media item store asset protection type
-                if([result[@"storeAssetProtectionType"] integerValue] == 2 && networkType == 0) {
+                if([result[@"storeAssetProtectionType"] integerValue] == 2 && cannotStream) {
                     if([cloud lastKnownFairPlaySubscriptionStatus] != nil && [[cloud lastKnownFairPlaySubscriptionStatus] hasSubscriptionSlot]) {
                         if(![[cloud lastKnownFairPlaySubscriptionStatus] hasSubscriptionLease]) {
                             return 0;
@@ -66,7 +71,7 @@
             
             if(![result[@"isPlayable"] boolValue]) return 3;
             
-            if ([MelodyEntityPlayabilityController isCellularNetworkType:networkType] && !isCellularNetworkAllowed) return 4;
+            if (isCellularAndCantStream) return 4;
             
             return networkType == 0 ? 2 : 0;
         }
@@ -136,10 +141,11 @@
     return self->_networkType;
 }
 
+-(void)_setupCellularNetworkingAllowed {
+    self->_cellularNetworkAllowed = [[%c(MPNetworkObserver) sharedNetworkObserver] isMusicCellularStreamingAllowed];
+}
+
 -(BOOL)_isCellularNetworkAllowed {
-    if((self->_cellularNetworkAllowed & 0xff) == 0xff) {
-        self->_cellularNetworkAllowed = [[%c(MPNetworkObserver) sharedNetworkObserver] isMusicCellularDownloadingAllowed];
-    }
     return self->_cellularNetworkAllowed;
 }
 

@@ -110,14 +110,11 @@
     dispatch_barrier_async(self->_accessQueue, ^{
         BOOL cell = self->_cellularNetworkAllowed;
         if((cell & 0xff) != 0xff) {
-            self->_cellularNetworkAllowed = YES;
-            BOOL newCellularNetworkAllowed = [self _isCellularNetworkAllowed];
-            if(cell != newCellularNetworkAllowed) {
-                if(![MelodyEntityPlayabilityController isCellularNetworkType:[self _networkType]]) {
-                    dispatch_async(dispatch_get_global_queue(0x0, 0x0), ^{
-                        [[NSNotificationCenter defaultCenter] postNotificationName:@"MusicEntityPlayabilityControllerDidChangeNotification" object:self];
-                    });
-                }
+            [self _setupCellularNetworkingAllowed];
+            if(![MelodyEntityPlayabilityController isCellularNetworkType:[self _networkType]]) {
+                dispatch_async(dispatch_get_global_queue(0x0, 0x0), ^{
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"MusicEntityPlayabilityControllerDidChangeNotification" object:self];
+                });
             }
         }
     });

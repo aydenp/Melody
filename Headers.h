@@ -678,6 +678,47 @@
 -(void)setChargeEnabledOnTabBarButtonsContainer:(BOOL)arg1 ;
 @end
 
+@protocol MusicEntityVerticalLockupViewDelegate <NSObject>
+@optional
+-(void)verticalLockupView:(id)arg1 didSelectPlayButtonAction:(unsigned long long)arg2;
+@end
+
+@interface MusicPlayButton : UIControl
+-(void)showPlayIndicator:(BOOL)arg1 ;
+-(void)setBigHitInsets:(UIEdgeInsets)insets;
+-(CGSize)buttonSize;
+@end
+
+@interface MusicEntityPlaybackStatus : NSObject <NSCopying, NSMutableCopying>
+@property (nonatomic,readonly) double playbackCurrentTime;
+@property (nonatomic,readonly) long long playbackDisplayState;              //@synthesize playbackDisplayState=_playbackDisplayState - In the implementation block
+@property (nonatomic,readonly) double playbackDuration;                     //@synthesize playbackDuration=_playbackDuration - In the implementation block
+@property (nonatomic,readonly) float playbackRate;                          //@synthesize playbackRate=_playbackRate - In the implementation block
+@property (nonatomic,readonly) BOOL shouldDisplayPlaying;
+@end
+
+@interface MusicEntityViewContentArtworkDescriptor : NSObject
+-(UIEdgeInsets)artworkEdgeInsets;
+@end
+
+@interface MusicEntityViewContentDescriptor : NSObject
+-(MusicEntityViewContentArtworkDescriptor *)artworkDescriptor;
+@end
+
+@interface MusicEntityAbstractLockupView : UIView
+-(void)_handlePlayButtonTappedWithAction:(unsigned long long)arg1 ;
+-(MusicEntityViewContentDescriptor *)_contentDescriptor;
+-(BOOL)_shouldShowPlayButton;
+-(void)_configurePlayButtonVisualProperties:(id)arg1 ;
+-(void)_layoutPlayButtonUsingBlock:(void (^)(MusicPlayButton *playButton))arg1;
+-(UIView *)_artworkView;
+@end
+
+@interface MusicEntityVerticalLockupView : MusicEntityAbstractLockupView
+-(id<MusicEntityVerticalLockupViewDelegate>)delegate;
+-(void)_handlePlayButtonTappedWithAction:(unsigned long long)arg1 ;
+@end
+
 @interface SKUITabBarItem : NSObject
 @property (nonatomic,readonly) NSString * tabIdentifier;                               //@synthesize tabIdentifier=_tabIdentifier - In the implementation block
 @property (assign,nonatomic) BOOL alwaysCreatesRootViewController;                     //@synthesize alwaysCreatesRootViewController=_alwaysCreatesRootViewController - In the implementation block

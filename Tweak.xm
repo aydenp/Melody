@@ -46,6 +46,11 @@ static MPCMediaPlayerLegacyPlayer *getRealPlayer() {
     return (MPCMediaPlayerLegacyPlayer *)delegate.player;
 }
 
+static NSUInteger _MusicPlayButtonActionForPlaybackStatus(MusicEntityPlaybackStatus *arg0) {
+    if (arg0 != 0x0) return ([arg0 shouldDisplayPlaying] & 0xff) + 0x1;
+    return 0x3;
+};
+
 // MARK: - Loading Settings
 
 static BOOL isEnabled = YES;
@@ -1251,12 +1256,6 @@ static void handleUnplayableEntityValueContext(MusicEntityValueContext *entityVa
 +(id)imageNamed:(id)arg1 inBundle:(id)arg2 {
     return [UIImage _abTransformImage:%orig named:arg1];
 }
-     
-+(id)imageWithContentsOfFile:(id)path {
-    %log;
-    NSLog(@"Image URL: %@", path);
-    return %orig;
-}
 
 %new
 +(UIImage *)_abTransformImage:(UIImage *)image named:(NSString *)name {
@@ -1264,6 +1263,70 @@ static void handleUnplayableEntityValueContext(MusicEntityValueContext *entityVa
         return [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     }
     return image;
+}
+
+%end
+
+// MARK: - We need play buttons
+
+%hook MusicEntityAbstractLockupView
+
+%new
+-(void)_layoutPlayButtonUsingBlock:(void (^)(MusicPlayButton *playButton))arg1 {
+    MusicPlayButton *playButton = MSHookIvar<MusicPlayButton *>(self, "_playButton");
+    if([self _shouldShowPlayButton]) {
+        if(playButton == nil) {
+            playButton = [[%c(MusicPlayButton) alloc] init];
+            [playButton showPlayIndicator:YES];
+            [playButton addTarget:self action:@selector(_playButtonTapped:) forControlEvents:0x40];
+            [playButton setBigHitInsets:UIEdgeInsetsMake(-15, -15, -15, -15)];
+            [self _configurePlayButtonVisualProperties:playButton];
+            [self addSubview:playButton];
+            //[playButton _applyPlaybackStatus:_playbackStatus];
+            arg1(playButton);
+        }
+        [playButton setHidden:NO];
+    } else {
+        [playButton setHidden:YES];
+    }
+}
+
+%new
+-(void)_playButtonTapped:(id)arg1 {
+    int action = 0x0;//_MusicPlayButtonActionForPlaybackStatus(self->_playbackStatus);
+    if(action != 0x0) [self _handlePlayButtonTappedWithAction:action];
+}
+
+%end
+
+// MARK: - Add Play button back to recently added items
+
+%hook MusicEntityVerticalLockupView
+
+%new
+-(void)_handlePlayButtonTappedWithAction:(unsigned long long)arg1 {
+    id<MusicEntityVerticalLockupViewDelegate> delegate = [self delegate];
+    if(delegate && [delegate respondsToSelector:@selector(verticalLockupView:didSelectPlayButtonAction:)]) {
+        [delegate verticalLockupView:self didSelectPlayButtonAction:arg1];
+    }
+}
+
+-(void)layoutSubviews {
+    %orig;
+    [self _layoutPlayButtonUsingBlock:^(MusicPlayButton *playButton) {
+        UIEdgeInsets edgeInsets = UIEdgeInsetsMake(8, 8, 8, 8);
+        MusicEntityViewContentArtworkDescriptor *artworkDescriptor = [[self _contentDescriptor] artworkDescriptor];
+        if(artworkDescriptor != nil) {
+            UIEdgeInsets additionalInsets = artworkDescriptor.artworkEdgeInsets;
+            edgeInsets.top += additionalInsets.top;
+            edgeInsets.bottom += additionalInsets.bottom;
+            edgeInsets.left += additionalInsets.left;
+            edgeInsets.right += additionalInsets.right;
+        }
+        UIView *artworkView = [self _artworkView];
+        NSLog(@"fucc %f", edgeInsets.right + playButton.frame.size.width);
+        [playButton setFrame:CGRectMake(CGRectGetMaxX(artworkView.frame) - (edgeInsets.right + playButton.buttonSize.width), CGRectGetMaxY(artworkView.frame) - (edgeInsets.bottom + playButton.buttonSize.height), playButton.frame.size.width, playButton.frame.size.height)];
+    }];
 }
 
 %end

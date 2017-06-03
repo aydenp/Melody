@@ -6,6 +6,10 @@ Bring the iOS 9 Music app to iOS 10.
 
 I had originally planned to release and finish this tweak myself, but was unable to because of stress from school and other things. To benefit the community, I have released it as open-source here, with the hopes that others can bring it to completion.
 
+## Not a developer?
+
+[Get Melody from my repo](https://repo.applebetas.co/depiction/co.dynastic.ios.tweak.melody/)
+
 ## Contributing
 
 **If you plan on contributing, you must read the license carefully.**

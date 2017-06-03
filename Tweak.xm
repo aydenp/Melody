@@ -1278,8 +1278,8 @@ static void handleUnplayableEntityValueContext(MusicEntityValueContext *entityVa
         if(playButton == nil) {
             playButton = [[%c(MusicPlayButton) alloc] init];
             [playButton showPlayIndicator:YES];
-            [playButton addTarget:self action:@selector(_playButtonTapped:) forControlEvents:0x40];
-            [playButton setBigHitInsets:UIEdgeInsetsMake(-15, -15, -15, -15)];
+            [playButton addTarget:self action:@selector(_playButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+            [playButton setBigHitInsets:UIEdgeInsetsMake(15, 15, 15, 15)];
             [self _configurePlayButtonVisualProperties:playButton];
             [self addSubview:playButton];
             //[playButton _applyPlaybackStatus:_playbackStatus];
@@ -1293,7 +1293,7 @@ static void handleUnplayableEntityValueContext(MusicEntityValueContext *entityVa
 
 %new
 -(void)_playButtonTapped:(id)arg1 {
-    int action = 0x0;//_MusicPlayButtonActionForPlaybackStatus(self->_playbackStatus);
+    int action = 0x3;// play song until we figure out: _MusicPlayButtonActionForPlaybackStatus(self->_playbackStatus);
     if(action != 0x0) [self _handlePlayButtonTappedWithAction:action];
 }
 
@@ -1323,7 +1323,7 @@ static void handleUnplayableEntityValueContext(MusicEntityValueContext *entityVa
             edgeInsets.right += artworkDescriptor.artworkEdgeInsets.right;
         }
         CGRect playButtonFrame = UIEdgeInsetsInsetRect([self _artworkView].frame, edgeInsets);
-        [playButton setFrame:CGRectMake(CGRectGetMaxX(playButtonFrame), CGRectGetMaxY(playButtonFramegi), playButton.frame.size.width, playButton.frame.size.height)];
+        [playButton setFrame:CGRectMake(CGRectGetMaxX(playButtonFrame), CGRectGetMaxY(playButtonFrame), playButton.buttonSize.width, playButton.buttonSize.height)];
     }];
 }
 
